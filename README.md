@@ -17,3 +17,8 @@ Things it doesn't do yet:
 * Notify if there was a problem (e.g. https://hn.algolia.com/api is down)
 * Trim out matches with 0 comments
 * Offer options for how to rank 'similar' matches (e.g. if you want the most popular rather than the latest)
+
+## Usage
+
+I haven't made it a proper packaged extension yet, so clone it and install it from the cloned repo as an unpacked extension,
+as described at https://developer.chrome.com/extensions/getstarted#unpacked.
