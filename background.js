@@ -1,6 +1,5 @@
-chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
-    if(message.method != 'getHits') return;
-
+chrome.browserAction.onClicked.addListener(activeTab => {
+    chrome.browserAction.setPopup( { popup: "popup.html" } );
     let search = `http://hn.algolia.com/api/v1/search?restrictSearchableAttributes=url&query=${activeTab.url}`;
 
     let x = new XMLHttpRequest();
@@ -23,7 +22,15 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
                 chrome.tabs.create({ url: hnThread });
             }
             else {
-                sendResponse(response.hits.sort(h => -h.created_at))
+                var views = chrome.extension.getViews({type: "popup"});
+
+                let innerHtml = response.hits.map(hit => {
+                    let hnThread = `https://news.ycombinator.com/item?id=${hit.objectID}`
+                    return `<li><a href="${hnThread}">${hit.title}</a></li>`
+                }).reduce((x, y) => x + y, '');
+                for (var i = 0; i < views.length; i++) {
+                    views[i].document.getElementById('hits').innerHTML=innerHtml;
+                }
             }
         }
     };
