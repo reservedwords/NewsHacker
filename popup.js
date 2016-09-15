@@ -17,8 +17,12 @@ function showThreads(threads) {
 }
 
 function showError(error) {
+    let errorMessage = 'An unknown error occurred';
+    if(error) {
+        errorMessage = `Error: ${error}`
+    }
     $('#error').show();
-    $('#error').text(`Something went wrong: ${error}`);
+    $('#error').text(errorMessage);
 }
 
 function connect() {
