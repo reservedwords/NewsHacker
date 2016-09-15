@@ -17,16 +17,18 @@
       a {
         text-decoration: none;
       }
+      #loading, #no-match, #error {
+        display: none;
+      }
     </style>
+    <script src="jquery-3.1.0.js"></script>
     <script src="popup.js"></script>
   </head>
   <body>
     <p id="loading">Loading...</p>
     <p id="error"></p>
-    <p id="no-match"></p>
-    <ul id="hits">
-
-    </ul>
+    <p id="no-match">No matches found.</p>
+    <ul id="hits"></ul>
   </body>
 </html>
 

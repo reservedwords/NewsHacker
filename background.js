@@ -1,33 +1,36 @@
 function findThread(noThreadCallback, oneThreadCallback, multipleThreadCallback, errorCallback) {
     chrome.tabs.query({active: true, currentWindow: true}, arrayOfTabs => {
+        if(!arrayOfTabs || arrayOfTabs.length == 0) errorCallback("Cannot detect active tab when devtools is in focus");
         let activeTab = arrayOfTabs[0];
         let search = `http://hn.algolia.com/api/v1/search?restrictSearchableAttributes=url&query=${activeTab.url}`;
-
-        let x = new XMLHttpRequest();
-        x.open('GET', search);
-        x.responseType = 'json';
-        x.onload = () => {
-            let response = x.response;
+        
+        function handleResponse( response, textStatus, jqXHR ) {
             if (!response || !response.hits || response.hits.length === 0) {
               noThreadCallback();
+              return;
             }
 
             if (response.hits.length == 1) {
                 oneThreadCallback(response.hits[0]);
+                return;
             }
-            else {
-                let exactMatch = response.hits.find(hit => hit.url == activeTab.url);
-                if(exactMatch) {
-                    oneThreadCallback(exactMatch);
-                }
-                else
-                {
-                    multipleThreadCallback(response.hits)
-                }
+            let exactMatch = response.hits.find(hit => hit.url == activeTab.url);
+            if(exactMatch) {
+                oneThreadCallback(exactMatch);
             }
-        };
-        x.onerror = errorCallback;
-        x.send();
+            else
+            {
+                multipleThreadCallback(response.hits)
+            }
+        }
+        
+        $.ajax({
+            url: search,
+            method: 'GET',
+            dataType: 'json'
+        })
+        .done(handleResponse)
+        .fail(function(xhr, status, err) { errorCallback(err); });
     });
 }
 
@@ -37,7 +40,9 @@ function openThreadInNewTab(hit) {
 }
 
 function postEmptyThreadMessage(port){
-    postThreadMessage(port)([]);
+    return function(hits) {
+        port.postMessage({ success: true, threads: []});
+    }
 }
 
 function postThreadMessage(port) {

@@ -4,30 +4,39 @@ function makeLink(hit) {
 }
 
 function showThreads(threads) {
-    if(threads.length == 0) { 
-        document.getElementById('no-match').innerHTML='No matches found';
+    if(threads.length == 0) {
+        $('#no-match').show();
         return;
     }
 
-    let innerHtml = threads
-            .map(makeLink)
-            .reduce((x, y) => x + y, '');
-    document.getElementById('hits').innerHTML=innerHtml;
+    let threadLinks = threads
+        .filter(thread => thread.num_comments > 0)
+        .map(makeLink)
+        .reduce((x, y) => x + y, '');
+    $('#hits').html(threadLinks);
 }
 
 function showError(error) {
-    document.getElementById('error').innerHTML = 'Something went wrong';
+    let errorMessage = 'An unknown error occurred';
+    if(error) {
+        errorMessage = `Error: ${error}`
+    }
+    $('#error').show();
+    $('#error').text(errorMessage);
 }
 
 function connect() {
+    $('#loading').show();
     var port = chrome.extension.connect({name: 'MainChannel'});
     port.onMessage.addListener(function(msg) {
-        document.getElementById('loading').style.display = 'none';
+        $('#loading').hide();
         if(msg.success) {
-            return showThreads(msg.threads)
+            showThreads(msg.threads);
+            return;
         }
-        return showError(msg.error)
+        showError(msg.error);
+        return;
     });
 }
 
-document.addEventListener('DOMContentLoaded', connect);
+$(connect);
