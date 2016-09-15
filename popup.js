@@ -4,7 +4,7 @@ function makeLink(hit) {
 }
 
 function showThreads(threads) {
-    if(threads.length == 0) { 
+    if(threads.length == 0) {
         $('#no-match').show();
         return;
     }
@@ -17,7 +17,8 @@ function showThreads(threads) {
 }
 
 function showError(error) {
-    $('#error').text('Something went wrong');
+    $('#error').show();
+    $('#error').text(`Something went wrong: ${error}`);
 }
 
 function connect() {
