@@ -10,8 +10,9 @@ function showThreads(threads) {
     }
 
     let threadLinks = threads
-            .map(makeLink)
-            .reduce((x, y) => x + y, '');
+        .filter(thread => thread.num_comments > 0)
+        .map(makeLink)
+        .reduce((x, y) => x + y, '');
     $('hits').html(threadLinks);
 }
 
