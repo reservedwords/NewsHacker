@@ -40,7 +40,9 @@ function openThreadInNewTab(hit) {
 }
 
 function postEmptyThreadMessage(port){
-    postThreadMessage(port)([]);
+    return function(hits) {
+        port.postMessage({ success: true, threads: []});
+    }
 }
 
 function postThreadMessage(port) {
