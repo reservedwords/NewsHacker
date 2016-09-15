@@ -1,27 +1,29 @@
-<!doctype html>
-<!--
- This page is shown when the extension button is clicked, because the
- "browser_action" field in manifest.json contains the "default_popup" key with
- value "popup.html".
- -->
+<!DOCTYPE html>
 <html>
   <head>
     <title>News Hacker</title>
     <style>
       body {
-        font-family: "Segoe UI", "Lucida Grande", Tahoma, sans-serif;
-        font-size: 100%;
+        background-color: rgb(246, 246, 239);
+        width: 600px;
+        color: #000;
+        font-family: Verdana, Geneva, sans-serif;
       }
-      #status {
-        /* avoid an excessively wide status text */
-        white-space: pre;
-        text-overflow: ellipsis;
-        overflow: hidden;
-        max-width: 400px;
+      #hits li {
+        list-style: none;
+        padding-top: 0.2em;
+        padding-bottom: 0.2em;
+      }
+      a {
+        text-decoration: none;
       }
     </style>
+    <script src="popup.js"></script>
   </head>
   <body>
+    <p id="loading">Loading...</p>
+    <p id="error"></p>
+    <p id="no-match"></p>
     <ul id="hits">
 
     </ul>

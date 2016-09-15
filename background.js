@@ -1,39 +1,57 @@
-chrome.browserAction.onClicked.addListener(activeTab => {
-    chrome.browserAction.setPopup( { popup: "popup.html" } );
-    let search = `http://hn.algolia.com/api/v1/search?restrictSearchableAttributes=url&query=${activeTab.url}`;
+function findThread(noThreadCallback, oneThreadCallback, multipleThreadCallback, errorCallback) {
+    chrome.tabs.query({active: true, currentWindow: true}, arrayOfTabs => {
+        let activeTab = arrayOfTabs[0];
+        let search = `http://hn.algolia.com/api/v1/search?restrictSearchableAttributes=url&query=${activeTab.url}`;
 
-    let x = new XMLHttpRequest();
-    x.open('GET', search);
-    x.responseType = 'json';
-    x.onload = () => {
-        let response = x.response;
-        if (!response || !response.hits || response.hits.length === 0) {
-          throw('No hits found on HN search');
-        }
+        let x = new XMLHttpRequest();
+        x.open('GET', search);
+        x.responseType = 'json';
+        x.onload = () => {
+            let response = x.response;
+            if (!response || !response.hits || response.hits.length === 0) {
+              noThreadCallback();
+            }
 
-        if (response.hits.length == 1) {
-            let hnThread = `https://news.ycombinator.com/item?id=${bestMatch.objectID}`;
-            chrome.tabs.create({ url: hnThread });
-        }
-        else {
-            let exactMatch = response.hits.find(hit => hit.url == activeTab.url);
-            if(exactMatch) {
-                let hnThread = `https://news.ycombinator.com/item?id=${bestMatch.objectID}`;
-                chrome.tabs.create({ url: hnThread });
+            if (response.hits.length == 1) {
+                oneThreadCallback(response.hits[0]);
             }
             else {
-                var views = chrome.extension.getViews({type: "popup"});
-
-                let innerHtml = response.hits.map(hit => {
-                    let hnThread = `https://news.ycombinator.com/item?id=${hit.objectID}`
-                    return `<li><a href="${hnThread}">${hit.title}</a></li>`
-                }).reduce((x, y) => x + y, '');
-                for (var i = 0; i < views.length; i++) {
-                    views[i].document.getElementById('hits').innerHTML=innerHtml;
+                let exactMatch = response.hits.find(hit => hit.url == activeTab.url);
+                if(exactMatch) {
+                    oneThreadCallback(exactMatch);
+                }
+                else
+                {
+                    multipleThreadCallback(response.hits)
                 }
             }
-        }
-    };
-    x.onerror = () => { throw('Network error.') };
-    x.send();
-})
+        };
+        x.onerror = errorCallback;
+        x.send();
+    });
+}
+
+function openThreadInNewTab(hit) {
+    let hnThread = `https://news.ycombinator.com/item?id=${hit.objectID}`;
+    chrome.tabs.create({url: hnThread})        
+}
+
+function postEmptyThreadMessage(port){
+    postThreadMessage(port)([]);
+}
+
+function postThreadMessage(port) {
+    return function(hits) {
+        port.postMessage({ success: true, threads: hits});
+    }
+}
+
+function postError(port) {
+    return function(err) {
+        port.postMessage({success: false, error: err})
+    }
+}
+
+chrome.extension.onConnect.addListener(function(port) {
+    findThread(postEmptyThreadMessage(port), openThreadInNewTab, postThreadMessage(port), postError(port))
+});
