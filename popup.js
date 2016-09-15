@@ -5,7 +5,7 @@ function makeLink(hit) {
 
 function showThreads(threads) {
     if(threads.length == 0) { 
-        $('#no-match').text('No matches found');
+        $('#no-match').show();
         return;
     }
 
@@ -13,22 +13,28 @@ function showThreads(threads) {
         .filter(thread => thread.num_comments > 0)
         .map(makeLink)
         .reduce((x, y) => x + y, '');
-    $('hits').html(threadLinks);
+    $('#hits').html(threadLinks);
 }
 
 function showError(error) {
-    $('error').text('Something went wrong');
+    $('#error').text('Something went wrong');
 }
 
 function connect() {
     var port = chrome.extension.connect({name: 'MainChannel'});
+    
     port.onMessage.addListener(function(msg) {
-        $('loading').hide();
+        $('#loading').hide();
         if(msg.success) {
-            return showThreads(msg.threads)
+            showThreads(msg.threads);
+            return;
         }
-        return showError(msg.error)
+        showError(msg.error);
+        return;
     });
 }
 
-$(connect);
+$(function() {
+    $('#loading').show();
+    connect()
+});

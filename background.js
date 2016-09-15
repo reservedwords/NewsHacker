@@ -1,5 +1,6 @@
 function findThread(noThreadCallback, oneThreadCallback, multipleThreadCallback, errorCallback) {
     chrome.tabs.query({active: true, currentWindow: true}, arrayOfTabs => {
+        if(!arrayOfTabs || arrayOfTabs.length == 0) errorCallback("Cannot detect active tab when devtools is in focus");
         let activeTab = arrayOfTabs[0];
         let search = `http://hn.algolia.com/api/v1/search?restrictSearchableAttributes=url&query=${activeTab.url}`;
         
