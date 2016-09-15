@@ -1,6 +1,8 @@
-chrome.browserAction.onClicked.addListener(activeTab => {
+chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+    if(message.method != 'getHits') return;
+
     let search = `http://hn.algolia.com/api/v1/search?restrictSearchableAttributes=url&query=${activeTab.url}`;
-    
+
     let x = new XMLHttpRequest();
     x.open('GET', search);
     x.responseType = 'json';
@@ -10,13 +12,21 @@ chrome.browserAction.onClicked.addListener(activeTab => {
           throw('No hits found on HN search');
         }
 
-        let bestMatch = 
-            response.hits.find(hit => hit.url == activeTab.url) || 
-            response.hits.sort(h => h.created_at).reverse()[0];
-
-        let hnThread = `https://news.ycombinator.com/item?id=${bestMatch.objectID}`;
-        chrome.tabs.create({ url: hnThread });
+        if (response.hits.length == 1) {
+            let hnThread = `https://news.ycombinator.com/item?id=${bestMatch.objectID}`;
+            chrome.tabs.create({ url: hnThread });
+        }
+        else {
+            let exactMatch = response.hits.find(hit => hit.url == activeTab.url);
+            if(exactMatch) {
+                let hnThread = `https://news.ycombinator.com/item?id=${bestMatch.objectID}`;
+                chrome.tabs.create({ url: hnThread });
+            }
+            else {
+                sendResponse(response.hits.sort(h => -h.created_at))
+            }
+        }
     };
     x.onerror = () => { throw('Network error.') };
     x.send();
-});
+})
