@@ -5,24 +5,24 @@ function makeLink(hit) {
 
 function showThreads(threads) {
     if(threads.length == 0) { 
-        document.getElementById('no-match').innerHTML='No matches found';
+        $('#no-match').text('No matches found');
         return;
     }
 
-    let innerHtml = threads
+    let threadLinks = threads
             .map(makeLink)
             .reduce((x, y) => x + y, '');
-    document.getElementById('hits').innerHTML=innerHtml;
+    $('hits').html(threadLinks);
 }
 
 function showError(error) {
-    document.getElementById('error').innerHTML = 'Something went wrong';
+    $('error').text('Something went wrong');
 }
 
 function connect() {
     var port = chrome.extension.connect({name: 'MainChannel'});
     port.onMessage.addListener(function(msg) {
-        document.getElementById('loading').style.display = 'none';
+        $('loading').hide();
         if(msg.success) {
             return showThreads(msg.threads)
         }
@@ -30,4 +30,4 @@ function connect() {
     });
 }
 
-document.addEventListener('DOMContentLoaded', connect);
+$(connect);
