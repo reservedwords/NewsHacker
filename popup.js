@@ -21,8 +21,8 @@ function showError(error) {
 }
 
 function connect() {
+    $('#loading').show();
     var port = chrome.extension.connect({name: 'MainChannel'});
-    
     port.onMessage.addListener(function(msg) {
         $('#loading').hide();
         if(msg.success) {
@@ -34,7 +34,4 @@ function connect() {
     });
 }
 
-$(function() {
-    $('#loading').show();
-    connect()
-});
+$(connect);
