@@ -13,10 +13,9 @@ URL is a superstring of your URL.
 
 Things it doesn't do yet:
 
-* Notify with a extension 'popup' if there is no match
-* Notify if there was a problem (e.g. https://hn.algolia.com/api is down)
 * Trim out matches with 0 comments
 * Offer options for how to rank 'similar' matches (e.g. if you want the most popular rather than the latest)
+* Do the right thing when only one hit is found but it is not exactly the right page (probably an unusual corner-case)
 
 ## Usage
 
