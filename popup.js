@@ -25,7 +25,7 @@ function showThreads(threads) {
         return;
     }
 
-    let threadLinks = threads
+    const threadLinks = threads
         .filter(thread => thread.num_comments > 0)
         .map(makeLink);
     threadLinks.forEach(link => {
@@ -34,7 +34,7 @@ function showThreads(threads) {
 }
 
 function showError(error) {
-    let errorMessage = 'An unknown error occurred';
+    const errorMessage = 'An unknown error occurred';
     if(error) {
         errorMessage = `Error: ${error}`
     }
@@ -44,7 +44,7 @@ function showError(error) {
 
 function connect() {
     show('loading');
-    var port = chrome.extension.connect({name: 'MainChannel'});
+    const port = chrome.extension.connect({name: 'MainChannel'});
     port.onMessage.addListener(function(msg) {
         hide('loading');
         if(msg.success) {
