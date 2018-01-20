@@ -2,6 +2,7 @@
 <html>
   <head>
     <title>News Hacker</title>
+    <script type="text/javascript" src="popup.js"></script>
     <style>
       body {
         background-color: rgb(246, 246, 239);
@@ -17,17 +18,15 @@
       a {
         text-decoration: none;
       }
-      #loading, #no-match, #error {
+      .hide {
         display: none;
       }
     </style>
-    <script src="jquery-3.1.0.js"></script>
-    <script src="popup.js"></script>
   </head>
   <body>
-    <p id="loading">Loading...</p>
-    <p id="error"></p>
-    <p id="no-match">No matches found.</p>
+    <p id="loading" class="hide">Loading...</p>
+    <p id="error" class="hide"></p>
+    <p id="no-match" class="hide">No matches found.</p>
     <ul id="hits"></ul>
   </body>
 </html>
