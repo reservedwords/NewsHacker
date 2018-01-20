@@ -1,35 +1,52 @@
 function makeLink(hit) {
-    let hnThread = `https://news.ycombinator.com/item?id=${hit.objectID}`
-    return `<li><a href="${hnThread}" target="_blank">${hit.title}</a></li>`
+    const listItem = document.createElement('li');
+    const hyperlink = document.createElement('a');
+    
+    hyperlink.setAttribute('href', `https://news.ycombinator.com/item?id=${hit.objectID}`);
+    hyperlink.setAttribute('target', '_blank');
+    hyperlink.setAttribute('rel', 'noopener noreferrer');
+    hyperlink.textContent = hit.title;
+
+    listItem.appendChild(hyperlink);
+    return listItem;
+}
+
+function show(id) {
+    document.getElementById(id).classList.remove('hide');
+}
+
+function hide(id) {
+    document.getElementById(id).classList.add('hide');
 }
 
 function showThreads(threads) {
     if(threads.length == 0) {
-        $('#no-match').show();
+        show('no-match');
         return;
     }
 
-    let threadLinks = threads
+    const threadLinks = threads
         .filter(thread => thread.num_comments > 0)
-        .map(makeLink)
-        .reduce((x, y) => x + y, '');
-    $('#hits').html(threadLinks);
+        .map(makeLink);
+    threadLinks.forEach(link => {
+        document.getElementById('hits').appendChild(link);
+    });
 }
 
 function showError(error) {
-    let errorMessage = 'An unknown error occurred';
+    const errorMessage = 'An unknown error occurred';
     if(error) {
         errorMessage = `Error: ${error}`
     }
-    $('#error').show();
-    $('#error').text(errorMessage);
+    show('error');
+    document.getElementById('error').textContent = errorMessage;
 }
 
 function connect() {
-    $('#loading').show();
-    var port = chrome.extension.connect({name: 'MainChannel'});
+    show('loading');
+    const port = chrome.extension.connect({name: 'MainChannel'});
     port.onMessage.addListener(function(msg) {
-        $('#loading').hide();
+        hide('loading');
         if(msg.success) {
             showThreads(msg.threads);
             return;
@@ -39,4 +56,4 @@ function connect() {
     });
 }
 
-$(connect);
+document.addEventListener('DOMContentLoaded', connect);
