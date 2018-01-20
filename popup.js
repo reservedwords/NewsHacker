@@ -56,4 +56,4 @@ function connect() {
     });
 }
 
-document.addEventListener('DOMContentLoaded', () => connect());
+document.addEventListener('DOMContentLoaded', connect);
